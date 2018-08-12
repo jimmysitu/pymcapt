@@ -1,0 +1,3 @@
+[submodule "mcpat"]
+	path = mcpat
+	url = https://github.com/HewlettPackard/mcpat.git
