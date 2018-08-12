@@ -8,10 +8,10 @@ ifndef NTHREADS
 endif
 
 TARGET = _mcpat.so
-TAG = opt
+TAG = dbg
 
 LIBS = -lm
-INCS = -Imcpat/cacti -Imcpat $(shell python-config --cflags | cut -d ' ' -f1)
+INCS = -Imcpat/cacti -Imcpat $(shell python2-config --cflags | cut -d ' ' -f1)
 
 ifeq ($(TAG),dbg)
   DBG = -Wall
@@ -21,7 +21,6 @@ else
   OPT = -O2 -msse2 -mfpmath=sse -DNTHREADS=$(NTHREADS)
 endif
 
-#CXXFLAGS = -Wno-unknown-pragmas -fPIC $(DBG) $(OPT) $(INCS)
 CXXFLAGS = -fPIC $(DBG) $(OPT) $(INCS)
 LDFLAGS = -shared -pthread
 CXX = g++
@@ -66,11 +65,14 @@ SRCS  = \
 OBJS = $(patsubst %.cc, objs/%.o,$(SRCS))
 
 default: objs $(OBJS)
-	swig -c++ -python -Imcpat -Imcpat/cacti -o mcpat_wrap.cc mcpat.i
+	swig -c++ -python -Imcpat -Imcpat/cacti -o mcpat_wrap.cc -threads mcpat.i
 	$(CXX) $(CXXFLAGS) -c mcpat_wrap.cc -o mcpat_wrap.o
-	$(CXX) $(LDFLAGS) $(LIBS) $(OBJS) mcpat_wrap.o -o $(TARGET)
+	$(CXX) $(LDFLAGS) $(LIBS)  mcpat_wrap.o $(OBJS) -o $(TARGET)
 
-test: objs $(OBJS)
+test:
+	python2 -c "import mcpat; help(mcpat)"
+
+exe: objs $(OBJS)
 	$(CXX) $(LDFLAGS) $(LIBS) $(OBJS) -o libmcpat.so
 	$(CXX) $(CXXFLAGS) mcpat/main.cc -L. -lmcpat -o mcpat.exe
 
@@ -81,4 +83,4 @@ objs/%.o: %.cc
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	-rm -rf objs *.o libmcpat.so $(TARGET)
+	-rm -rf objs *.o libmcpat.so mcpat.exe $(TARGET)
