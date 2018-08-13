@@ -8,7 +8,7 @@ ifndef NTHREADS
 endif
 
 TARGET = _mcpat.so
-TAG = dbg
+TAG = opt
 
 LIBS = -lm
 INCS = -Imcpat/cacti -Imcpat $(shell python2-config --cflags | cut -d ' ' -f1)
@@ -18,7 +18,7 @@ ifeq ($(TAG),dbg)
   OPT = -ggdb -g -O0 -DNTHREADS=1 
 else
   DBG =
-  OPT = -O2 -msse2 -mfpmath=sse -DNTHREADS=$(NTHREADS)
+  OPT = -O3 -msse2 -mfpmath=sse -DNTHREADS=$(NTHREADS)
 endif
 
 CXXFLAGS = -fPIC $(DBG) $(OPT) $(INCS)
@@ -65,7 +65,7 @@ SRCS  = \
 OBJS = $(patsubst %.cc, objs/%.o,$(SRCS))
 
 default: objs $(OBJS)
-	swig -c++ -python -Imcpat -Imcpat/cacti -o mcpat_wrap.cc -threads mcpat.i
+	swig -c++ -python -Imcpat -Imcpat/cacti -o mcpat_wrap.cc mcpat.i
 	$(CXX) $(CXXFLAGS) -c mcpat_wrap.cc -o mcpat_wrap.o
 	$(CXX) $(LDFLAGS) $(LIBS)  mcpat_wrap.o $(OBJS) -o $(TARGET)
 
