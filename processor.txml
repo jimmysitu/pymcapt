@@ -16,8 +16,8 @@
         <param name="homogeneous_L3s" value="1"/>
         <param name="homogeneous_ccs" value="1"/><!--cache coherence hardware -->
         <param name="homogeneous_NoCs" value="1"/>
-        <param name="core_tech_node" value="65"/><!-- nm -->
-        <param name="target_core_clockrate" value="3400"/><!--MHz -->
+        <param name="core_tech_node" value="28"/><!-- nm -->
+        <param name="target_core_clockrate" value="$system['target_core_clockrate']"/><!--MHz -->
         <param name="temperature" value="380"/> <!-- Kelvin -->
         <param name="number_cache_levels" value="3"/>
         <param name="interconnect_projection_type" value="0"/><!--0: aggressive wire technology; 1: conservative wire technology -->
@@ -28,8 +28,7 @@
         <param name="virtual_address_width" value="64"/>
         <param name="physical_address_width" value="52"/>
         <param name="virtual_memory_page_size" value="4096"/>
-        <!-- address width determines the tag_width in Cache, LSQ and buffers in cache controller
-            default value is machine_bits, if not set -->
+        <!-- address width determines the tag_width in Cache, LSQ and buffers in cache controller. Default value is machine_bits, if not set -->
         <stat name="total_cycles" value="${system['total_cycles']}"/>
         <stat name="idle_cycles" value="${system['idle_cycles']}"/>
         <stat name="busy_cycles"  value="${system['busy_cycles']}"/>
@@ -45,10 +44,10 @@
             <!-- "-1" means using default power gating virtual power supply voltage constrained by technology and computed automatically -->
             <param name="opt_local" value="0"/>
             <!-- for cores with unknown timing, set to 0 to force off the opt flag -->
-            <param name="instruction_length" value="${system['core0']['instruction_length']}"/>
-            <param name="opcode_width" value="${system['core0']['opcode_width']}"/>
+            <param name="instruction_length" value="32"/>
+            <param name="opcode_width" value="16"/>
             <param name="x86" value="1"/>
-            <param name="micro_opcode_width" value="${system['core0']['micro_opcode_width']}"/>
+            <param name="micro_opcode_width" value="12"/>
             <param name="machine_type" value="0"/>
             <!-- inorder/OoO; 1 inorder; 0 OOO-->
             <param name="number_hardware_threads" value="1"/>
@@ -59,7 +58,7 @@
             <param name="number_of_BPT" value="${system['core0']['number_of_BPT']}"/>
             <param name="fetch_width" value="${system['core0']['fetch_width']}"/>
             <!-- fetch_width determines the size of cachelines of L1 cache block -->
-            <param name="number_instruction_fetch_ports" value="${system['core0']['number_instruction_fetch_ports']}"/>
+            <param name="number_instruction_fetch_ports" value="1"/>
             <param name="decode_width" value="${system['core0']['decode_width']}"/>
             <!-- decode_width determines the number of ports of the
             renaming table (both RAM and CAM) scheme -->
@@ -95,17 +94,16 @@
             <param name="ROB_size" value="${system['core0']['ROB_size']}"/>
             <!-- each in-flight instruction has an entry in ROB -->
             <!-- registers -->
-            <param name="archi_Regs_IRF_size" value="${system['core0']['archi_Regs_IRF_size']}"/><!-- X86-64 has 16GPR -->
-            <param name="archi_Regs_FRF_size" value="${system['core0']['archi_Regs_FRF_size']}"/><!-- MMX + XMM -->
-            <!--  if OoO processor, phy_reg number is needed for renaming logic,
-            renaming logic is for both integer and floating point insts.  -->
+            <param name="archi_Regs_IRF_size" value="${system['core0']['archi_Regs_IRF_size']}"/> <!-- X86-64 has 16GPR -->
+            <param name="archi_Regs_FRF_size" value="${system['core0']['archi_Regs_FRF_size']}"/> <!-- MMX + XMM -->
+            <!-- if OoO processor, phy_reg number is needed for renaming logic, renaming logic is for both integer and floating point insts. -->
             <param name="phy_Regs_IRF_size" value="${system['core0']['phy_Regs_IRF_size']}"/>
             <param name="phy_Regs_FRF_size" value="${system['core0']['phy_Regs_FRF_size']}"/>
             <!-- rename logic -->
             <param name="rename_scheme" value="${system['core0']['rename_scheme']}"/>
-            <!-- can be RAM based(0) or CAM based(1) rename scheme
-            RAM-based scheme will have free list, status table;
-            CAM-based scheme have the valid bit in the data field of the CAM -->
+            <!-- Can be RAM based(0) or CAM based(1) rename scheme -->
+            <!-- RAM-based scheme will have free list, status table -->
+            <!-- CAM-based scheme have the valid bit in the data field of the CAM -->
             <param name="checkpoint_depth" value="${system['core0']['checkpoint_depth']}"/>
             <!-- RAM and CAM RAT contains checkpoints, checkpoint_depth=# of in_flight speculations;
             RAM-based RAT should not have more than 4 GCs (e.g., MIPS R10000).
@@ -171,26 +169,23 @@
             <stat name="function_calls" value="${system['core0']['function_calls']}"/>
             <stat name="context_switches" value="${system['core0']['context_switches']}"/>
             <!-- Number of Windows switches (number of function calls and returns)-->
-            <!-- Alu stats by default, the processor has one FPU that includes the divider and
-             multiplier. The fpu accesses should include accesses to multiplier and divider  -->
+            <!-- Alu stats by default, the processor has one FPU that includes the divider and multiplier.
+                 The fpu accesses should include accesses to multiplier and divider  -->
             <stat name="ialu_accesses" value="${system['core0']['ialu_accesses']}"/>
             <stat name="fpu_accesses" value="${system['core0']['fpu_accesses']}"/>
             <stat name="mul_accesses" value="${system['core0']['mul_accesses']}"/>
             <stat name="cdb_alu_accesses" value="${system['core0']['cdb_alu_accesses']}"/>
             <stat name="cdb_mul_accesses" value="${system['core0']['cdb_mul_accesses']}"/>
             <stat name="cdb_fpu_accesses" value="${system['core0']['cdb_fpu_accesses']}"/>
-            <!-- multiple cycle accesses should be counted multiple times,
-            otherwise, McPAT can use internal counter for different floating point instructions
-            to get final accesses. But that needs detailed info for floating point inst mix -->
-            <!--  currently the performance simulator should
-            make sure all the numbers are final numbers,
-            including the explicit read/write accesses,
-            and the implicit accesses such as replacements and etc.
-            Future versions of McPAT may be able to reason the implicit access
-            based on param and stats of last level cache
-            The same rule applies to all cache access stats too!  -->
+            <!-- Multiple cycle accesses should be counted multiple times.
+                 Otherwise, McPAT can use internal counter for different floating point instructions
+                 to get final accesses. But that needs detailed info for floating point inst mix -->
+            <!-- Currently the performance simulator should make sure all the numbers are final numbers,
+                 including the explicit read/write accesses, and the implicit accesses such as replacements and etc. -->
+            <!-- Future versions of McPAT may be able to reason the implicit access based on param and stats of last level cache
+                 The same rule applies to all cache access stats too! -->
             <!-- following is AF for max power computation. Do not change them, unless you understand them-->
-            <stat name="IFU_duty_cycle" value="0.25"/>	<!--depends on Icache line size and instruction issue rate -->
+            <stat name="IFU_duty_cycle" value="0.25"/>
             <stat name="LSU_duty_cycle" value="0.25"/>
             <stat name="MemManU_I_duty_cycle" value="0.25"/>
             <stat name="MemManU_D_duty_cycle" value="0.25"/>
@@ -265,7 +260,8 @@
             <!-- all the buffer related are optional -->
             <param name="clockrate" value="${system['L1Directory0']['clockrate']}"/>
             <param name="vdd" value="${system['L1Directory0']['vdd']}"/><!-- 0 means using ITRS default vdd -->
-            <param name="power_gating_vcc" value="${system['L1Directory0']['power_gating_vcc']}" means using default power gating virtual power supply voltage constrained by technology and computed automatically -->
+            <param name="power_gating_vcc" value="${system['L1Directory0']['power_gating_vcc']}"/>
+            <!-- "-1" means using default power gating virtual power supply voltage constrained by technology and computed automatically -->
             <param name="ports" value="${system['L1Directory0']['ports']}"/>
             <!-- number of r, w, and rw search ports -->
             <param name="device_type" value="${system['L1Directory0']['device_type']}"/>
@@ -288,7 +284,8 @@
             <!-- all the buffer related are optional -->
             <param name="clockrate" value="${system['L2Directory0']['clockrate']}"/>
             <param name="vdd" value="${system['L2Directory0']['vdd']}"/><!-- 0 means using ITRS default vdd -->
-            <param name="power_gating_vcc" value="${system['L2Directory0']['power_gating_vcc']}" means using default power gating virtual power supply voltage constrained by technology and computed automatically -->
+            <param name="power_gating_vcc" value="${system['L2Directory0']['power_gating_vcc']}"/>
+            <!-- "-1" means using default power gating virtual power supply voltage constrained by technology and computed automatically -->
             <param name="ports" value="${system['L2Directory0']['ports']}"/>
             <!-- number of r, w, and rw search ports -->
             <param name="device_type" value="${system['L2Directory0']['device_type']}"/>
@@ -330,8 +327,9 @@
             <param name="ports" value="${system['L30']['ports']}"/>
             <!-- number of r, w, and rw ports -->
             <param name="device_type" value="${system['L30']['device_type']}"/>
-            <param name="vdd" value="${system['L30']['vdd']}"/><!-- 0 means using ITRS default vdd -->
-            <param name="power_gating_vcc" value="${system['L30']['power_gating_vcc']}" means using default power gating virtual power supply voltage constrained by technology and computed automatically -->
+            <param name="vdd" value="${system['L30']['vdd']}"/> <!-- 0 means using ITRS default vdd -->
+            <param name="power_gating_vcc" value="${system['L30']['power_gating_vcc']}"/>
+            <!-- "-1" means using default power gating virtual power supply voltage constrained by technology and computed automatically -->
             <param name="buffer_sizes" value="${system['L30']['buffer_sizes']}"/>
             <!-- cache controller buffer sizes: miss_buffer_size(MSHR),fill_buffer_size,prefetch_buffer_size,wb_buffer_size-->
             <stat name="read_accesses" value="${system['L30']['read_accesses']}"/>
@@ -349,14 +347,13 @@
             <param name="power_gating_vcc" value="-1"/>
             <!-- "-1" means using default power gating virtual power supply voltage constrained by technology and computed automatically -->
             <param name="type" value="0"/>
-            <!--0:bus, 1:NoC , for bus no matter how many nodes sharing the bus
-                at each time only one node can send req -->
+            <!--0:bus, 1:NoC , for bus no matter how many nodes sharing the bus at each time only one node can send req -->
             <param name="horizontal_nodes" value="1"/>
             <param name="vertical_nodes" value="1"/>
             <param name="has_global_link" value="0"/>
             <!-- 1 has global link, 0 does not have global link -->
-            <param name="link_throughput" value="${system['noc0']['link_throughput']}"/><!--w.r.t clock -->
-            <param name="link_latency" value="${system['noc0']['link_latency']}"/><!--w.r.t clock -->
+            <param name="link_throughput" value="${system['noc0']['link_throughput']}"/> <!--w.r.t clock -->
+            <param name="link_latency" value="${system['noc0']['link_latency']}"/> <!--w.r.t clock -->
             <!-- throughput >= latency -->
             <!-- Router architecture -->
             <param name="input_ports" value="1"/>

@@ -4,11 +4,6 @@ from optparse import OptionParser
 import mcpat
 
 
-def print_usage():
-    print("How to use McPAT:")
-    print("  origin.py -infile <input file name>  -print_level < level of details 0~5 >  -opt_for_clk < 0 (optimize for ED^2P only)/1 (optimzed for target clock rate)>")
-    exit(1)
-
 if __name__ == "__main__":
     parser = OptionParser()
 
