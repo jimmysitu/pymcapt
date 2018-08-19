@@ -15,13 +15,18 @@ def get_system_param(cfg):
     param['core0']['vdd'] = cfg['system']['clk_domain']['voltage_domain']['voltage'][0]
     param['core0']['number_of_BTB'] = 1
     param['core0']['number_of_BPT'] = 1
-    param['core0']['fetch_width'] =  cfg['system']['timingCPU']['fetchWidth']
-    param['core0'][''] = 
-    param['core0'] 
-    param['core0'] 
-    param['core0'] 
-    param['core0'] 
-    param['core0'] 
+    param['core0']['fetch_width'] =  cfg['system']['timingCPU'][0]['fetchWidth']
+    param['core0']['decode_width'] = cfg['system']['timingCPU'][0]['decodeWidth']
+    param['core0']['issue_width'] = cfg['system']['timingCPU'][0]['issueWidth']
+    param['core0']['peak_issue_width'] = param['core0']['issue_width']
+    param['core0']['commit_width'] = cfg['system']['timingCPU'][0]['commitWidth']
+    param['core0']['fp_issue_width'] = int(cfg['system']['timingCPU'][0]['issueWidth'] / 4)
+    param['core0']['prediction_width'] = 1
+    param['core0']['pipelines_per_core'] = '1, 1'
+    param['core0']['pipeline_depth'] = '22, 28'
+    param['core0']['ALU_per_core'] = cfg['system']['timingCPU'][0]['fuPool']['FUList'][0]['count']
+    param['core0']['MUL_per_core'] = cfg['system']['timingCPU'][0]['fuPool']['FUList'][1]['count']
+    param['core0']['FPU_per_core'] = cfg['system']['timingCPU'][0]['fuPool']['FUList'][2]['count']
     return param
 
 def get_system_stats():
