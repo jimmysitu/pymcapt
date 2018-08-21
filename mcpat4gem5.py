@@ -27,11 +27,27 @@ def get_system_param(cfg):
     param['core0']['ALU_per_core'] = cfg['system']['timingCPU'][0]['fuPool']['FUList'][0]['count']
     param['core0']['MUL_per_core'] = cfg['system']['timingCPU'][0]['fuPool']['FUList'][1]['count']
     param['core0']['FPU_per_core'] = cfg['system']['timingCPU'][0]['fuPool']['FUList'][2]['count']
+    param['core0']['instruction_buffer_size'] = cfg['system']['timingCPU'][0]['fetchBufferSize']
+    param['core0']['decoded_stream_buffer_size'] = cfg['system']['timingCPU'][0]['numIQEntries']
+    param['core0']['instruction_window_scheme'] = 0 # PRF base
+    param['core0']['instruction_window_size'] = cfg['system']['timingCPU'][0]['numIQEntries']
+    param['core0']['fp_instruction_window_size'] = cfg['system']['timingCPU'][0]['numIQEntries']
+    param['core0']['ROB_size'] = cfg['system']['timingCPU'][0]['numROBEntries']
+    param['core0']['phy_Regs_IRF_size'] = cfg['system']['timingCPU'][0]['numPhysIntRegs']
+    param['core0']['phy_Regs_FRF_size'] = cfg['system']['timingCPU'][0]['numPhysFloatRegs']
+    param['core0']['rename_scheme'] = 1 # CAM based
+    param['core0']['checkpoint_depth'] = 0
+    param['core0']['register_windows_size'] = 0
+    param['core0']['LSU_order'] = 'inorder'
+    param['core0']['store_buffer_size'] = cfg['system']['timingCPU'][0]['SQEntries']
+    param['core0']['load_buffer_size'] = cfg['system']['timingCPU'][0]['LQEntries']
+    
+
+    
     return param
 
 def get_system_stats():
     pass
-
 if __name__ == "__main__":
     parser = OptionParser()
 

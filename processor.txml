@@ -94,8 +94,8 @@
             <param name="ROB_size" value="${system['core0']['ROB_size']}"/>
             <!-- each in-flight instruction has an entry in ROB -->
             <!-- registers -->
-            <param name="archi_Regs_IRF_size" value="${system['core0']['archi_Regs_IRF_size']}"/> <!-- X86-64 has 16GPR -->
-            <param name="archi_Regs_FRF_size" value="${system['core0']['archi_Regs_FRF_size']}"/> <!-- MMX + XMM -->
+            <param name="archi_Regs_IRF_size" value="16"/> <!-- X86-64 has 16GPR -->
+            <param name="archi_Regs_FRF_size" value="32"/> <!-- MMX + XMM -->
             <!-- if OoO processor, phy_reg number is needed for renaming logic, renaming logic is for both integer and floating point insts. -->
             <param name="phy_Regs_IRF_size" value="${system['core0']['phy_Regs_IRF_size']}"/>
             <param name="phy_Regs_FRF_size" value="${system['core0']['phy_Regs_FRF_size']}"/>
