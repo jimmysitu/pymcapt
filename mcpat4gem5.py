@@ -41,6 +41,7 @@ def get_system_param(cfg):
     param['core0']['LSU_order'] = 'inorder'
     param['core0']['store_buffer_size'] = cfg['system']['timingCPU'][0]['SQEntries']
     param['core0']['load_buffer_size'] = cfg['system']['timingCPU'][0]['LQEntries']
+    param['core0']['memory_ports'] = int(cfg['system']['timingCPU'][0]['FUPool'][7]['count'] / 2)
     
 
     
