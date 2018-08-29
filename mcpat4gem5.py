@@ -27,6 +27,7 @@ def get_system_param(cfg):
     param['core0']['ALU_per_core'] = cfg['system']['timingCPU'][0]['fuPool']['FUList'][0]['count']
     param['core0']['MUL_per_core'] = cfg['system']['timingCPU'][0]['fuPool']['FUList'][1]['count']
     param['core0']['FPU_per_core'] = cfg['system']['timingCPU'][0]['fuPool']['FUList'][2]['count']
+    
     return param
 
 def get_system_stats():
