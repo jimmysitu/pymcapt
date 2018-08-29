@@ -9,7 +9,7 @@ def get_system_param(cfg):
     param = {}
     param['number_of_cores'] = len(cfg['system']['timingCPU'])
     param['target_core_clockrate'] = int(1000 / cfg['system']['clk_domain']['clock'][0])
-    
+
     # core0
     param['core0']['clock_rate'] = int(1000 / cfg['system']['clk_domain']['clock'][0])
     param['core0']['vdd'] = cfg['system']['clk_domain']['voltage_domain']['voltage'][0]
@@ -27,12 +27,27 @@ def get_system_param(cfg):
     param['core0']['ALU_per_core'] = cfg['system']['timingCPU'][0]['fuPool']['FUList'][0]['count']
     param['core0']['MUL_per_core'] = cfg['system']['timingCPU'][0]['fuPool']['FUList'][1]['count']
     param['core0']['FPU_per_core'] = cfg['system']['timingCPU'][0]['fuPool']['FUList'][2]['count']
-    
+    param['core0']['instruction_buffer_size'] = cfg['system']['timingCPU'][0]['fetchBufferSize']
+    param['core0']['decoded_stream_buffer_size'] = cfg['system']['timingCPU'][0]['numIQEntries']
+    param['core0']['instruction_window_scheme'] = 0 # PRF base
+    param['core0']['instruction_window_size'] = cfg['system']['timingCPU'][0]['numIQEntries']
+    param['core0']['fp_instruction_window_size'] = cfg['system']['timingCPU'][0]['numIQEntries']
+    param['core0']['ROB_size'] = cfg['system']['timingCPU'][0]['numROBEntries']
+    param['core0']['phy_Regs_IRF_size'] = cfg['system']['timingCPU'][0]['numPhysIntRegs']
+    param['core0']['phy_Regs_FRF_size'] = cfg['system']['timingCPU'][0]['numPhysFloatRegs']
+    param['core0']['rename_scheme'] = 1 # CAM based
+    param['core0']['checkpoint_depth'] = 0
+    param['core0']['register_windows_size'] = 0
+    param['core0']['LSU_order'] = 'inorder'
+    param['core0']['store_buffer_size'] = cfg['system']['timingCPU'][0]['SQEntries']
+    param['core0']['load_buffer_size'] = cfg['system']['timingCPU'][0]['LQEntries']
+    param['core0']['memory_ports'] = int(cfg['system']['timingCPU'][0]['FUPool'][7]['count'] / 2)
+    param['core0']['RAS_size'] = int(cfg['system']['timingCPU'][0]['branchPred']['RASSize'])
+
     return param
 
 def get_system_stats():
     pass
-
 if __name__ == "__main__":
     parser = OptionParser()
 
@@ -53,11 +68,11 @@ if __name__ == "__main__":
     system = {}
     with open(opts.config, 'r') as fp:
         cfg = json.load(fp)
-   
+
     system.update(get_system_param(cfg))
     cfg.close()
 
-    
+
     p1 = mcpat.ParseXML()
     p1.parse(opts.infile)
 
