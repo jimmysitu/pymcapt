@@ -3,6 +3,7 @@
 from optparse import OptionParser
 import json
 import mako
+import tempfile
 import mcpat
 
 def get_system_param(cfg):
@@ -46,8 +47,25 @@ def get_system_param(cfg):
 
     return param
 
-def get_system_stats():
+def read_stats(fp):
+    sts = ''
+    started = False
+    line = fp.readline()
+    while(1):
+        if started:
+            if -1 != line.find('End Simulation Statistics'):
+                return sts
+            sts = sts + line
+            line = fp.readline()
+        else:
+            if -1 == line.find('Begin Simulation Statistics'):
+                break
+            else:
+                started = True
+
+def get_system_stats(sts):
     pass
+
 if __name__ == "__main__":
     parser = OptionParser()
 
@@ -66,17 +84,36 @@ if __name__ == "__main__":
     mcpat.cvar.opt_for_clk = bool(opts.opt_for_clk)
 
     system = {}
+    # Get system configure
     with open(opts.config, 'r') as fp:
         cfg = json.load(fp)
 
     system.update(get_system_param(cfg))
-    cfg.close()
 
+    # Get system status slice by slice
+    fp = open(opts.stats, 'r')
 
-    p1 = mcpat.ParseXML()
-    p1.parse(opts.infile)
+    mkt = Template(filename = opts.template)
+    while(1):
+        sts = read_stats(fp)
+        if sts:
+            system.update(get_system_stats(sts))
 
-    proc = mcpat.Processor(p1)
-    proc.displayEnergy(2, opts.plevel)
+            # Create a tempfile
+            tp = tempfile.NamedTemporaryFile()
 
+            # Render tmpfile
+            print(mkt.render(system = system), file=tp)
+
+            # Create mcpat model
+            p1 = mcpat.ParseXML()
+            p1.parse(tp.name)
+
+            # Calculate slice's energy
+            proc = mcpat.Processor(p1)
+            proc.displayEnergy(2, opts.plevel)
+        else:
+            break
+
+    fp.close()
     exit(0)
