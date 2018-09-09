@@ -48,14 +48,14 @@ def get_system_param(cfg):
     return param
 
 def read_stats(fp):
-    sts = ''
+    stsString = ''
     started = False
     line = fp.readline()
     while(1):
         if started:
             if -1 != line.find('End Simulation Statistics'):
-                return sts
-            sts = sts + line
+                return stsString
+            stsString = stsString + line
             line = fp.readline()
         else:
             if -1 == line.find('Begin Simulation Statistics'):
@@ -63,8 +63,32 @@ def read_stats(fp):
             else:
                 started = True
 
-def get_system_stats(sts):
-    pass
+def get_system_stats(stsString, commitWidth = 4):
+    system = {}
+    stsLines = stsString.splitlines()
+    for l in stsLines:
+        stsList = l.split()
+        for item in stsList:
+            stsDict.update({item[0]: item[1]})
+
+        # Core0
+        system['core0']['total_instructions'] = stsDict['system.timingCpu.commit.committedOps']
+        system['core0']['int_instructions'] = stsDict['system.timingCpu.commit.int_insts']
+        system['core0']['fp_instructions'] = stsDict['system.timingCpu.commit.fp_insts']
+        system['core0']['branch_instructions'] = stsDict['system.timingCpu.commit.branches']
+        system['core0']['branch_mispredictions'] = stsDict['system.timingCpu.commit.branchMispredicts']
+        system['core0']['load_instructions'] = stsDict['system.timingCpu.commit.loads']
+        system['core0']['store_instructions'] = stsDict['system.timingCpu.iew.exec_stores']
+        system['core0']['committed_instructions'] = stsDict['system.timingCpu.commit.committedOps']
+        system['core0']['committed_int_instructions'] = stsDict['system.timingCpu.commit.int_insts']
+        system['core0']['committed_fp_instructions'] = stsict['system.timingCpu.commit.fp_insts']
+        system['core0']['pipeline_duty_cycle'] = stsDict['system.timingCpu.ipc'] / commitWidth
+        system['core0']['total_cycles'] = stsDict['system.timingCpu.numCycles']
+        system['core0']['idle_cycles'] = stsDict['system.timingCpu.idleCycles']
+        system['core0']['busy_cycles'] = system['core0']['total_cycles'] - system['core0']['idle_cycles']
+
+
+
 
 if __name__ == "__main__":
     parser = OptionParser()
