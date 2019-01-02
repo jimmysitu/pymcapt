@@ -11,7 +11,7 @@ TARGET = _mcpat.so
 TAG = opt
 
 LIBS = -lm
-INCS = -Imcpat/cacti -Imcpat $(shell python2-config --cflags | cut -d ' ' -f1)
+INCS = -Imcpat/cacti -Imcpat $(shell python3-config --cflags | cut -d ' ' -f1)
 
 ifeq ($(TAG),dbg)
   DBG = -Wall
@@ -70,7 +70,7 @@ default: objs $(OBJS)
 	$(CXX) $(LDFLAGS) $(LIBS)  mcpat_wrap.o $(OBJS) -o $(TARGET)
 
 test:
-	python2 -c "import mcpat; help(mcpat)"
+	python3 -c "import mcpat; help(mcpat)"
 
 exe: objs $(OBJS)
 	$(CXX) $(LDFLAGS) $(LIBS) $(OBJS) -o libmcpat.so
