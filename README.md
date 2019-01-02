@@ -7,5 +7,5 @@ Python Interface for McPAT
 ## TODO
 - Add example file for gem5 status.txt to mcpat power
 - Add computeEnergy infterface to each compoment which support status changes at runtime
-
+- Support python2 so gem5 can all mcpat.so directly?
 
