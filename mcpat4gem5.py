@@ -18,11 +18,11 @@ def update(d, u):
 def get_system_param(cfg):
     param = {}
     param['number_of_cores'] = len(cfg['system']['timingCpu'])
-    param['target_core_clockrate'] = int(1000 / cfg['system']['clk_domain']['clock'][0])
+    param['target_core_clockrate'] = int(1000 / cfg['system']['clk_domain']['clock'][0]) * 1000
 
     # core0
     param['core0'] = {}
-    param['core0']['clock_rate'] = int(1000 / cfg['system']['clk_domain']['clock'][0])
+    param['core0']['clock_rate'] = int(1000 / cfg['system']['clk_domain']['clock'][0]) * 1000
     param['core0']['vdd'] = cfg['system']['clk_domain']['voltage_domain']['voltage'][0]
     param['core0']['number_of_BTB'] = 1
     param['core0']['number_of_BPT'] = 1
@@ -55,13 +55,92 @@ def get_system_param(cfg):
     param['core0']['memory_ports'] = int(cfg['system']['timingCpu'][0]['fuPool']["FUList"][7]['count'] / 2)
     param['core0']['RAS_size'] = int(cfg['system']['timingCpu'][0]['branchPred']['RASSize'])
 
+    param['core0']['PBT'] = {}
+    param['core0']['PBT']['local_predictor_size'] = cfg['system']['timingCpu'][0]['branchPred']['localPredictorSize']
+    param['core0']['PBT']['local_predictor_entries'] = int(cfg['system']['timingCpu'][0]['branchPred']['localPredictorSize']) / 2
+    param['core0']['PBT']['global_predictor_entries'] = int(cfg['system']['timingCpu'][0]['branchPred']['globalPredictorSize']) / 2
+    param['core0']['PBT']['global_predictor_bits'] = 2
+    param['core0']['PBT']['chooser_predictor_entries'] = int(cfg['system']['timingCpu'][0]['branchPred']['choicePredictorSize']) / 2
+    param['core0']['PBT']['chooser_predictor_bits'] = 2
+
+    param['core0']['itlb'] = {}
+    param['core0']['itlb']['number_entries'] = cfg['system']['timingCpu'][0]['itb']['size']
+    param['core0']['icache'] = {}
+    param['core0']['icache']['icache_config'] = "16384,32,8,1,8,3,32,0"
+    param['core0']['icache']['buffer_sizes'] = "16, 16, 16, 0"
+
+    param['core0']['dtlb'] = {}
+    param['core0']['dtlb']['number_entries'] = cfg['system']['timingCpu'][0]['dtb']['size']
+    param['core0']['dcache'] = {}
+    param['core0']['dcache']['dcache_config'] = "16384, 16, 4, 1, 3, 3, 16, 1"
+    param['core0']['dcache']['buffer_sizes'] = "16, 16, 16, 16"
+
+    param['core0']['BTB'] = {}
+    param['core0']['BTB']['BTB_config'] = "5120, 4, 2, 1, 1, 3"
+
+    param['L1Directory0'] = {}
+    param['L1Directory0']['Directory_type'] = 0
+    param['L1Directory0']['Dir_config'] = "4096, 2, 0, 1, 100, 100, 8"
+    param['L1Directory0']['buffer_sizes'] = "8, 8, 8, 8"
+    param['L1Directory0']['clockrate'] = 3000
+    param['L1Directory0']['vdd'] = 0
+    param['L1Directory0']['power_gating_vcc'] = -1
+    param['L1Directory0']['ports'] = '1, 1, 1'
+    param['L1Directory0']['device_type'] = 0
+
+    param['L2Directory0'] = {}
+    param['L2Directory0']['Directory_type'] = 0
+    param['L2Directory0']['Dir_config'] = "1048576, 16, 16, 1, 2, 100"
+    param['L2Directory0']['buffer_sizes'] = "8, 8, 8, 8"
+    param['L2Directory0']['clockrate'] = 3000
+    param['L2Directory0']['vdd'] = 0
+    param['L2Directory0']['power_gating_vcc'] = -1
+    param['L2Directory0']['ports'] = '1, 1, 1'
+    param['L2Directory0']['device_type'] = 0
+
+    param['L20'] = {}
+    param['L20']['L2_config'] = "1048576,32, 8, 8, 8, 23, 32, 1"
+    param['L20']['buffer_sizes'] = "16, 16, 16, 16"
+    param['L20']['clockrate'] = 3000
+    param['L20']['vdd'] = 0
+    param['L20']['ports'] = '1, 1, 1'
+    param['L20']['device_type'] = 0
+
+    param['L30'] = {}
+    param['L30']['L3_config'] = '16777216, 64, 16, 16, 16, 100, 1'
+    param['L30']['clockrate'] = 3000
+    param['L30']['ports'] = '1, 1, 1'
+    param['L30']['device_type'] = 0
+    param['L30']['vdd'] = 0
+    param['L30']['power_gating_vcc'] = -1
+    param['L30']['buffer_sizes'] = '16, 16, 16, 16'
+
+
+    param['noc0'] = {}
+    param['noc0']['clockrate'] = 3000
+    param['noc0']['link_throughput'] = 1
+    param['noc0']['link_latency'] = 1
+
+    param['mc'] = {}
+    param['mc']['mc_clock'] = 2400
+    param['mc']['vdd'] = 0
+    param['mc']['peak_transfer_rate'] = 4800
+    param['mc']['block_size'] = 64
+    param['mc']['number_mcs'] = 0
+    param['mc']['memory_channels_per_mc'] = 1
+    param['mc']['number_ranks'] = 2
+    param['mc']['req_window_size_per_channel'] = 32
+    param['mc']['IO_buffer_size_per_channel'] = 32
+    param['mc']['databus_width'] = 128
+    param['mc']['addressbus_width'] = 51
+
     return param
 
 def read_stats(fp):
     stsString = ''
     started = False
     line = fp.readline()
-    while(1):
+    while(line):
         if started:
             if -1 != line.find('End Simulation Statistics'):
                 return stsString
@@ -108,7 +187,7 @@ def get_system_stats(stsString, commitWidth = 4):
     stats['core0']['ROB_writes'] = stsDict['system.timingCpu.rob.rob_writes']
     stats['core0']['rename_reads'] = stsDict['system.timingCpu.rename.RenameLookups']
     stats['core0']['rename_writes'] = stsDict['system.timingCpu.rename.RenamedOperands']
-    stats['core0']['fp_rename_reads'] = stsDict['system.timingCpu.rename.fp_rename_lookups']
+    stats['core0']['fp_rename_reads'] = stsDict.get('system.timingCpu.rename.fp_rename_lookups', 0)
     stats['core0']['fp_rename_writes'] = 0.3 * float(stsDict['system.timingCpu.rename.RenamedOperands']) # FIXME
     stats['core0']['inst_window_reads'] = stsDict['system.timingCpu.iq.int_inst_queue_reads']
     stats['core0']['inst_window_writes'] = stsDict['system.timingCpu.iq.int_inst_queue_writes']
@@ -118,8 +197,8 @@ def get_system_stats(stsString, commitWidth = 4):
     stats['core0']['fp_inst_window_wakeup_accesses'] = stsDict['system.timingCpu.iq.fp_inst_queue_wakeup_accesses']
     stats['core0']['int_regfile_reads'] = stsDict['system.timingCpu.int_regfile_reads']
     stats['core0']['int_regfile_writes'] = stsDict['system.timingCpu.int_regfile_writes']
-    stats['core0']['fp_regfile_reads'] = stsDict['system.timingCpu.fp_regfile_reads']
-    stats['core0']['fp_regfile_writes'] = stsDict['system.timingCpu.fp_regfile_writes']
+    stats['core0']['float_regfile_reads'] = stsDict.get('system.timingCpu.fp_regfile_reads', 0)
+    stats['core0']['float_regfile_writes'] = stsDict.get('system.timingCpu.fp_regfile_writes', 0)
     stats['core0']['function_calls'] = stsDict['system.timingCpu.commit.function_calls']
     stats['core0']['context_switches'] = 0
     stats['core0']['ialu_accesses'] = stsDict['system.timingCpu.iq.int_alu_accesses']
@@ -128,7 +207,65 @@ def get_system_stats(stsString, commitWidth = 4):
     stats['core0']['cdb_alu_accesses'] = 0
     stats['core0']['cdb_mul_accesses'] = 0
     stats['core0']['cdb_fpu_accesses'] = 0
+    stats['core0']['itlb'] = {}
+    stats['core0']['itlb']['total_accesses'] = stsDict['system.timingCpu.itb.wrAccesses']
+    stats['core0']['itlb']['total_misses'] = stsDict['system.timingCpu.itb.wrMisses']
+    stats['core0']['itlb']['conflicts'] = 0
+    stats['core0']['icache'] = {}
+    stats['core0']['icache']['read_accesses'] = stsDict['system.cpu.icache.ReadReq_accesses::total']
+    stats['core0']['icache']['read_misses'] = stsDict['system.cpu.icache.ReadReq_misses::total']
+    stats['core0']['icache']['conflicts'] = 0
+    stats['core0']['dtlb'] = {}
+    stats['core0']['dtlb']['total_accesses'] = int(stsDict['system.timingCpu.dtb.rdAccesses']) + int(stsDict['system.timingCpu.dtb.wrAccesses'])
+    stats['core0']['dtlb']['total_misses'] = int(stsDict['system.timingCpu.dtb.rdMisses']) + int(stsDict['system.timingCpu.dtb.wrMisses'])
+    stats['core0']['dtlb']['conflicts'] = 0
+    stats['core0']['dcache'] = {}
+    stats['core0']['dcache']['read_accesses'] = stsDict['system.cpu.dcache.ReadReq_accesses::total']
+    stats['core0']['dcache']['write_accesses'] = stsDict['system.cpu.dcache.WriteReq_accesses::total']
+    stats['core0']['dcache']['read_misses'] = stsDict['system.cpu.dcache.ReadReq_misses::total']
+    stats['core0']['dcache']['write_misses'] = stsDict['system.cpu.dcache.WriteReq_misses::total']
+    stats['core0']['dcache']['conflicts'] = 0
+    stats['core0']['BTB'] = {}
+    stats['core0']['BTB']['read_accesses'] = stsDict['system.timingCpu.branchPred.BTBLookups']
+    stats['core0']['BTB']['write_accesses'] = int(stsDict['system.timingCpu.branchPred.BTBLookups']) - int(stsDict['system.timingCpu.branchPred.BTBHits'])
 
+    stats['L1Directory0'] = {}
+    stats['L1Directory0']['read_accesses'] = 0
+    stats['L1Directory0']['write_accesses'] = 0
+    stats['L1Directory0']['read_misses'] = 0
+    stats['L1Directory0']['write_misses'] = 0
+    stats['L1Directory0']['conflicts'] = 0
+
+    stats['L2Directory0'] = {}
+    stats['L2Directory0']['read_accesses'] = 0
+    stats['L2Directory0']['write_accesses'] = 0
+    stats['L2Directory0']['read_misses'] = 0
+    stats['L2Directory0']['write_misses'] = 0
+    stats['L2Directory0']['conflicts'] = 0
+
+    stats['L20'] = {}
+    stats['L20']['read_accesses']= 0
+    stats['L20']['write_accesses'] = 0
+    stats['L20']['read_misses'] = 0
+    stats['L20']['write_misses'] = 0
+    stats['L20']['conflicts'] = 0
+
+    stats['L30'] = {}
+    stats['L30']['read_accesses'] = 0
+    stats['L30']['write_accesses'] = 0
+    stats['L30']['read_misses'] = 0
+    stats['L30']['write_misses'] = 0
+    stats['L30']['conflicts'] = 0
+
+    stats['noc0'] = {}
+    stats['noc0']['total_accesses'] = 0
+
+    stats['mc'] = {}
+    stats['mc']['memory_accesses'] = 0
+    stats['mc']['memory_reads'] = 0
+    stats['mc']['memory_writes'] = 0
+
+    return stats
 
 if __name__ == "__main__":
     parser = OptionParser()
@@ -164,7 +301,7 @@ if __name__ == "__main__":
             system = update(system, get_system_stats(sts))
 
             # Create a tempfile
-            tp = tempfile.NamedTemporaryFile()
+            tp = tempfile.NamedTemporaryFile(mode='wt')
 
             # Render tmpfile
             print(mkt.render(system = system), file=tp)
