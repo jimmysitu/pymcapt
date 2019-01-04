@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 
 from optparse import OptionParser
 from mako.template import Template
@@ -298,9 +298,12 @@ if __name__ == "__main__":
     fp = open(opts.stats, 'r')
 
     mkt = Template(filename = opts.template)
+    timeSlice = 0
     while(1):
         sts = read_stats(fp)
         if sts:
+            timeSlice = timeSlice + 1
+            print("=== Time Slice: %d ===" % timeSlice)
             system = update(system, get_system_stats(sts))
 
             # Create a tempfile
@@ -315,7 +318,7 @@ if __name__ == "__main__":
 
             # Calculate slice's energy
             proc = mcpat.Processor(p1)
-            proc.displayEnergy(2, opts.plevel)
+            proc.displayEnergy(1, opts.plevel)
         else:
             break
 
