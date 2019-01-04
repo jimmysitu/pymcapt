@@ -160,7 +160,10 @@ def get_system_stats(stsString, commitWidth = 4):
     for l in stsLines:
         stsList = l.split()
         if stsList:
-            stsDict.update({stsList[0]: stsList[1]})
+            if 'nan' == stsList[1]:
+                stsDict.update({stsList[0]: '0'})
+            else:
+                stsDict.update({stsList[0]: stsList[1]})
 
     # Processor
     stats['total_cycles'] = stsDict.get('system.timingCpu.numCycles', 0)
