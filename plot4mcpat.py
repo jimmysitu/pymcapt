@@ -18,12 +18,14 @@ if __name__ == "__main__":
     while(line):
         m = re.match(r'^  Runtime Dynamic = (\S+) W', line)
         if m:
-            powerStats.append(m.group(1))
+            powerStats.append(float(m.group(1)))
         line = fp.readline()
 
     fp.close()
-
+    print(powerStats)
     plt.plot(powerStats)
-    plt.ylabel("Power(W)")
     plt.xlabel("Time(ms)")
+    plt.ylabel("Power(W)")
+    plt.axis([0, 800, 0, 7])
+    plt.show()
     exit(0)

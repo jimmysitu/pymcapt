@@ -166,7 +166,9 @@ def get_system_stats(stsString, commitWidth = 4):
                 stsDict.update({stsList[0]: stsList[1]})
 
     # Processor
-    stats['total_cycles'] = stsDict.get('system.timingCpu.numCycles', 0)
+    #stats['total_cycles'] = stsDict.get('system.timingCpu.numCycles', 0)
+    stats['total_cycles'] = \
+        int(stsDict.get('sim_ticks', 0)) / int(stsDict.get('system.clk_domain.clock', 333))
     stats['idle_cycles'] = stsDict.get('system.timingCpu.idleCycles', 0)
     stats['busy_cycles'] = int(stats['total_cycles']) - int(stats['idle_cycles'])
 
@@ -321,7 +323,7 @@ if __name__ == "__main__":
 
             # Calculate slice's energy
             proc = mcpat.Processor(p1)
-            proc.displayEnergy(1, opts.plevel)
+            proc.displayEnergy(2, int(opts.plevel))
         else:
             break
 

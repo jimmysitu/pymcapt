@@ -4,7 +4,7 @@
 MAKEFLAGS += -j$(shell nproc)
 
 ifndef NTHREADS
-  NTHREADS = 4
+  NTHREADS = $(shell nproc)
 endif
 
 TARGET = _mcpat.so
