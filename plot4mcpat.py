@@ -26,6 +26,5 @@ if __name__ == "__main__":
     plt.plot(powerStats)
     plt.xlabel("Time(ms)")
     plt.ylabel("Power(W)")
-    plt.axis([0, 800, 0, 7])
     plt.show()
     exit(0)
